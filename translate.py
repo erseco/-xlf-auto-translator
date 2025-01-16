@@ -71,8 +71,9 @@ def translate_batch(texts, target_lang):
 def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
     """Process XLF file and translate untranslated strings"""
     try:
-        # Parse XLF file
-        tree = ET.parse(input_file)
+        # Parse XLF file preserving entities
+        parser = ET.XMLParser(target=ET.TreeBuilder(insert_comments=True))
+        tree = ET.parse(input_file, parser=parser)
         root = tree.getroot()
         
         # Get target language
@@ -175,7 +176,11 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
                 # Add other attributes, preserving HTML entities
                 for k, v in sorted(el.attrib.items()):
                     if k != 'xmlns':  # Skip xmlns as it's already handled
-                        attrs.append(f'{k}="{v}"')
+                        # Preserve entities in resname attribute
+                        if k == 'resname':
+                            attrs.append(f'{k}="{v}"')
+                        else:
+                            attrs.append(f'{k}="{v}"')
                 attrs_str = ' ' + ' '.join(attrs) if attrs else ''
                 result.append(f'<{tag}{attrs_str}>')
                 
@@ -190,8 +195,11 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
                             result.append(f'<![CDATA[{text}]]>')
                         else:
                             result.append(text)
+                    elif el.tag.endswith('source'):
+                        # For source elements, preserve HTML entities
+                        result.append(el.text)
                     else:
-                        # For non-target elements, keep original text with entities
+                        # For other elements, preserve text as is
                         result.append(el.text)
                 
                 # Process children
