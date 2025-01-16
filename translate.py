@@ -29,11 +29,14 @@ def analyze_strings(tree):
     untranslated = 0
     translated = 0
     
-    for trans_unit in tree.findall(".//trans-unit"):
+    # Register the XLIFF namespace
+    ns = {'xliff': 'urn:oasis:names:tc:xliff:document:1.2'}
+    
+    for trans_unit in tree.findall(".//xliff:trans-unit", namespaces=ns):
         resname = trans_unit.get('resname')
         if resname:
             total += 1
-            target = trans_unit.find('target')
+            target = trans_unit.find('xliff:target', namespaces=ns)
             if target is None or not target.text or target.text.isspace():
                 untranslated += 1
             else:
@@ -99,18 +102,21 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
             print("Translation cancelled.")
             return
         
+        # Register the XLIFF namespace
+        ns = {'xliff': 'urn:oasis:names:tc:xliff:document:1.2'}
+        
         # Collect strings to translate
         trans_units = []
         source_texts = []
         
-        for trans_unit in root.findall(".//trans-unit"):
+        for trans_unit in root.findall(".//xliff:trans-unit", namespaces=ns):
             resname = trans_unit.get('resname')
             if resname:
                 if force:
                     trans_units.append(trans_unit)
                     source_texts.append(resname)
                 else:
-                    target = trans_unit.find('target')
+                    target = trans_unit.find('xliff:target', namespaces=ns)
                     if target is None or not target.text or target.text.isspace():
                         trans_units.append(trans_unit)
                         source_texts.append(resname)
@@ -123,9 +129,10 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
             translations = translate_batch(batch_texts, target_lang)
             if translations:
                 for unit, translation in zip(batch_units, translations):
-                    target = unit.find('target')
+                    ns = {'xliff': 'urn:oasis:names:tc:xliff:document:1.2'}
+                    target = unit.find('xliff:target', namespaces=ns)
                     if target is None:
-                        target = ET.SubElement(unit, 'target')
+                        target = ET.SubElement(unit, '{urn:oasis:names:tc:xliff:document:1.2}target')
                     target.text = translation
             
             # Small delay to avoid rate limits
