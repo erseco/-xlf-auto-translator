@@ -117,8 +117,7 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
                 resname = trans_unit.get('resname')
                 source_text = source.text
                 # Convert HTML entities to real tags only for translation, keeping originals intact
-                from html import unescape
-                translation_text = unescape(source_text) if source_text else ""
+                translation_text = source_text if source_text else ""
                 if force:
                     trans_units.append(trans_unit)
                     source_texts.append(translation_text)
@@ -144,7 +143,8 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
                     if not target.text or target.text.isspace() or force:
                         from html import unescape
                         # Convert HTML entities to real tags for the target
-                        translation = unescape(translation)
+                        translation = translation  # Do not unescape; keep entities intact
+
                         if '<' in translation or '>' in translation:
                             target.text = f'<![CDATA[{translation}]]>'
                         else:
@@ -177,10 +177,8 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
                 for k, v in sorted(el.attrib.items()):
                     if k != 'xmlns':  # Skip xmlns as it's already handled
                         # Preserve entities in resname attribute
-                        if k == 'resname':
-                            attrs.append(f'{k}="{v}"')
-                        else:
-                            attrs.append(f'{k}="{v}"')
+                        from xml.sax.saxutils import quoteattr
+                        attrs.append(f'{k}={quoteattr(v)}')
                 attrs_str = ' ' + ' '.join(attrs) if attrs else ''
                 result.append(f'<{tag}{attrs_str}>')
                 
@@ -195,9 +193,15 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
                             result.append(f'<![CDATA[{text}]]>')
                         else:
                             result.append(text)
+                    # elif el.tag.endswith('source'):
+
                     elif el.tag.endswith('source'):
+                        # Preserve HTML entities in source elements
+                        from xml.sax.saxutils import escape
+                        result.append(escape(el.text))
+
                         # For source elements, preserve HTML entities
-                        result.append(el.text)
+                        #result.append(el.text)
                     else:
                         # For other elements, preserve text as is
                         result.append(el.text)

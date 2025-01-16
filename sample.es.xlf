@@ -5,44 +5,24 @@
       <tool tool-id="symfony" tool-name="Symfony"/>
     </header>
     <body>
-      <trans-unit id="pQWw280" resname="app.name">
-        <source>app.name</source>
+      <trans-unit id="3n6nOGc" resname="The &lt;acronym&gt; tag is not supported in HTML5.\n\nUse the &lt;abbr&gt; tag instead?">
+        <source>The &lt;acronym&gt; tag is not supported in HTML5.\n\nUse the &lt;abbr&gt; tag instead?</source>
         <target></target>
       </trans-unit>
-      <trans-unit id="kRbtL7a" resname="security.login.logged.in.as">
-        <source>security.login.logged.in.as</source>
+      <trans-unit id="gaxVlAk" resname="Class added to the &quot;CSS class&quot; field.">
+        <source>Class added to the "CSS class" field.</source>
         <target></target>
       </trans-unit>
-      <trans-unit id="ljPoG31" resname="security.login.logout">
-        <source>security.login.logout</source>
+      <trans-unit id="bHbHhew" resname="Please write the abbreviation and its meaning.">
+        <source>Please write the abbreviation and its meaning.</source>
         <target></target>
       </trans-unit>
-      <trans-unit id="YvJVY7H" resname="security.login.welcome">
-        <source>security.login.welcome</source>
+      <trans-unit id="ALh34kd" resname="The ACRONYM tag is not supported in HTML5.\n\nUse the ABBR tag instead?">
+        <source>The ACRONYM tag is not supported in HTML5.\n\nUse the ABBR tag instead?</source>
         <target></target>
       </trans-unit>
-      <trans-unit id="mfVIqx_" resname="security.login.app">
-        <source>security.login.app</source>
-        <target></target>
-      </trans-unit>
-      <trans-unit id="aUy6.2f" resname="security.login.start">
-        <source>security.login.start</source>
-        <target></target>
-      </trans-unit>
-      <trans-unit id="I1ccaiS" resname="security.login.email">
-        <source>security.login.email</source>
-        <target></target>
-      </trans-unit>
-      <trans-unit id="TT3C_o8" resname="security.login.password">
-        <source>security.login.password</source>
-        <target></target>
-      </trans-unit>
-      <trans-unit id="8PsyqHR" resname="security.login.submit">
-        <source>security.login.submit</source>
-        <target></target>
-      </trans-unit>
-      <trans-unit id="b.O.eEh" resname="workarea.lopdgdd.title">
-        <source>workarea.lopdgdd.title</source>
+      <trans-unit id="ariKC40" resname="The tooltip will show the content of the Free Text iDevice.">
+        <source>The tooltip will show the content of the Free Text iDevice.</source>
         <target></target>
       </trans-unit>
       <trans-unit id="x3qsgQp" resname="workarea.lopdgdd.body">
