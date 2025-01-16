@@ -175,13 +175,19 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
                     if el.tag.endswith('target'):
                         # For target elements, convert entities to HTML and wrap in CDATA if needed
                         from html import unescape
-                        text = unescape(el.text)  # Convert entities to HTML
-                        if '<' in text or '>' in text:
-                            result.append(f'<![CDATA[{text}]]>')
-                        else:
+                        text = el.text
+                        if text.startswith('<![CDATA[') and text.endswith(']]>'):
+                            # Already has CDATA, just append it
                             result.append(text)
+                        else:
+                            # Convert entities to HTML only for target without CDATA
+                            text = unescape(text)
+                            if '<' in text or '>' in text:
+                                result.append(f'<![CDATA[{text}]]>')
+                            else:
+                                result.append(text)
                     else:
-                        # For non-target elements, keep original text with entities
+                        # For non-target elements, keep original text exactly as is
                         result.append(el.text)
                 
                 # Process children
