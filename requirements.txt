@@ -1,0 +1,9 @@
+pydub
+ffprobe
+argparse
+openai>=1.0.0
+python-dotenv
+boto3
+replicate
+requests
+colorama
