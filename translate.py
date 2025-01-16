@@ -154,39 +154,38 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
         
         # Write the file preserving CDATA sections and HTML entities
         def write_with_cdata(elem, file, encoding='utf-8'):
-            def format_element(el, level=0):
-                indent = '  ' * level
+            def format_element(el):
                 result = []
                 tag = el.tag.split('}')[-1]  # Remove namespace
                 
                 # Start tag with attributes
                 attrs = ''.join(f' {k}="{v}"' for k, v in sorted(el.attrib.items()))
-                result.append(f'{indent}<{tag}{attrs}>')
+                result.append(f'<{tag}{attrs}>')
                 
                 # Handle text content
                 if el.text:
                     if '<![CDATA[' in el.text:
-                        result.append(f'{indent}  {el.text}')
+                        result.append(el.text)
                     elif '<' in el.text or '>' in el.text:
-                        result.append(f'{indent}  <![CDATA[{el.text}]]>')
+                        result.append(f'<![CDATA[{el.text}]]>')
                     else:
-                        result.append(f'{indent}  {el.text}')
+                        result.append(el.text)
                 
                 # Process children
                 for child in el:
-                    result.extend(format_element(child, level + 1))
+                    result.extend(format_element(child))
                     if child.tail:
-                        result.append(f'{indent}  {child.tail}')
+                        result.append(child.tail)
                 
                 # End tag
-                result.append(f'{indent}</{tag}>')
+                result.append(f'</{tag}>')
                 return result
             
             # Write XML declaration
             file.write(f'<?xml version="1.0" encoding="utf-8"?>\n'.encode(encoding))
             
-            # Write formatted content
-            content = '\n'.join(format_element(elem))
+            # Write formatted content with minimal spacing
+            content = ''.join(format_element(elem))
             file.write(content.encode(encoding))
 
         with open(output_file, 'wb') as f:
