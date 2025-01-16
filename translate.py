@@ -159,8 +159,14 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
                 tag = el.tag.split('}')[-1]  # Remove namespace
                 
                 # Start tag with attributes
-                attrs = ''.join(f' {k}="{v}"' for k, v in sorted(el.attrib.items()))
-                result.append(f'<{tag}{attrs}>')
+                attrs = []
+                # Add xmlns attribute for root element
+                if tag == 'xliff':
+                    attrs.append('xmlns="urn:oasis:names:tc:xliff:document:1.2"')
+                # Add other attributes
+                attrs.extend(f'{k}="{v}"' for k, v in sorted(el.attrib.items()))
+                attrs_str = ' ' + ' '.join(attrs) if attrs else ''
+                result.append(f'<{tag}{attrs_str}>')
                 
                 # Handle text content
                 if el.text:
