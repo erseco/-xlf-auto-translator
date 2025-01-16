@@ -149,8 +149,19 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
         # Register namespace prefix
         ET.register_namespace('', 'urn:oasis:names:tc:xliff:document:1.2')
         
-        # Write the file
-        tree.write(output_file, encoding='utf-8', xml_declaration=True)
+        # Write the file preserving CDATA sections
+        def write_with_cdata(elem, file, encoding='utf-8'):
+            xml_str = ET.tostring(elem, encoding=encoding)
+            # Convert escaped HTML back to CDATA if it contains HTML tags
+            xml_str = xml_str.replace(b'&lt;![CDATA[', b'<![CDATA[')
+            xml_str = xml_str.replace(b']]&gt;', b']]>')
+            
+            # Write XML declaration
+            file.write(f'<?xml version="1.0" encoding="utf-8"?>\n'.encode(encoding))
+            file.write(xml_str)
+
+        with open(output_file, 'wb') as f:
+            write_with_cdata(root, f)
         print(f"Translations saved to: {output_file}")
             
     except Exception as e:
