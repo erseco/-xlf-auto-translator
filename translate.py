@@ -112,15 +112,12 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
         for trans_unit in root.findall(".//xliff:trans-unit", namespaces=ns):
             source = trans_unit.find('xliff:source', namespaces=ns)
             if source is not None and source.text:
-                # Use the source text for translation
-                source_text = source.text
-                # Keep original text in resname
+                # Keep original text with HTML entities in resname and source
                 resname = trans_unit.get('resname')
-                if resname:
-                    trans_unit.set('resname', source_text)
-                # Convert HTML entities to real tags only for translation
+                source_text = source.text
+                # Convert HTML entities to real tags only for translation, keeping originals intact
                 from html import unescape
-                translation_text = unescape(source_text)
+                translation_text = unescape(source_text) if source_text else ""
                 if force:
                     trans_units.append(trans_unit)
                     source_texts.append(translation_text)
@@ -175,8 +172,10 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
                 # Add xmlns attribute for root element
                 if tag == 'xliff':
                     attrs.append('xmlns="urn:oasis:names:tc:xliff:document:1.2"')
-                # Add other attributes
-                attrs.extend(f'{k}="{v}"' for k, v in sorted(el.attrib.items()))
+                # Add other attributes, preserving HTML entities
+                for k, v in sorted(el.attrib.items()):
+                    if k != 'xmlns':  # Skip xmlns as it's already handled
+                        attrs.append(f'{k}="{v}"')
                 attrs_str = ' ' + ' '.join(attrs) if attrs else ''
                 result.append(f'<{tag}{attrs_str}>')
                 
