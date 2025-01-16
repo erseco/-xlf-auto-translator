@@ -30,8 +30,8 @@ def analyze_strings(tree):
     translated = 0
     
     for trans_unit in tree.findall(".//trans-unit"):
-        source = trans_unit.find('source')
-        if source is not None and source.text:
+        resname = trans_unit.get('resname')
+        if resname:
             total += 1
             target = trans_unit.find('target')
             if target is None or not target.text or target.text.isspace():
@@ -104,16 +104,16 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
         source_texts = []
         
         for trans_unit in root.findall(".//trans-unit"):
-            source = trans_unit.find('source')
-            if source is not None and source.text:
+            resname = trans_unit.get('resname')
+            if resname:
                 if force:
                     trans_units.append(trans_unit)
-                    source_texts.append(source.text)
+                    source_texts.append(resname)
                 else:
                     target = trans_unit.find('target')
                     if target is None or not target.text or target.text.isspace():
                         trans_units.append(trans_unit)
-                        source_texts.append(source.text)
+                        source_texts.append(resname)
         
         # Translate in batches
         for i in tqdm(range(0, len(source_texts), BATCH_SIZE)):
