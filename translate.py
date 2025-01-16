@@ -114,14 +114,17 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
             if source is not None and source.text:
                 # Use the source text for translation
                 source_text = source.text
+                # Convert HTML entities to real tags for translation
+                from html import unescape
+                translation_text = unescape(source_text)
                 if force:
                     trans_units.append(trans_unit)
-                    source_texts.append(source_text)
+                    source_texts.append(translation_text)
                 else:
                     target = trans_unit.find('xliff:target', namespaces=ns)
                     if target is None or not target.text or target.text.isspace():
                         trans_units.append(trans_unit)
-                        source_texts.append(source_text)
+                        source_texts.append(translation_text)
         
         # Translate in batches
         for i in tqdm(range(0, len(source_texts), BATCH_SIZE)):
@@ -137,6 +140,9 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
                         target = ET.SubElement(unit, '{urn:oasis:names:tc:xliff:document:1.2}target')
                     # Only update if target is empty or force flag is set
                     if not target.text or target.text.isspace() or force:
+                        from html import unescape
+                        # Convert HTML entities to real tags for the target
+                        translation = unescape(translation)
                         if '<' in translation or '>' in translation:
                             target.text = f'<![CDATA[{translation}]]>'
                         else:
@@ -173,21 +179,16 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
                 # Handle text content
                 if el.text:
                     if el.tag.endswith('target'):
-                        # For target elements, convert entities to HTML and wrap in CDATA if needed
-                        from html import unescape
+                        # For target elements, keep CDATA if present
                         text = el.text
                         if text.startswith('<![CDATA[') and text.endswith(']]>'):
-                            # Already has CDATA, just append it
                             result.append(text)
+                        elif '<' in text or '>' in text:
+                            result.append(f'<![CDATA[{text}]]>')
                         else:
-                            # Convert entities to HTML only for target without CDATA
-                            text = unescape(text)
-                            if '<' in text or '>' in text:
-                                result.append(f'<![CDATA[{text}]]>')
-                            else:
-                                result.append(text)
+                            result.append(text)
                     else:
-                        # For non-target elements, keep original text exactly as is
+                        # For non-target elements, keep original text with entities
                         result.append(el.text)
                 
                 # Process children
