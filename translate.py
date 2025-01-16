@@ -114,7 +114,11 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
             if source is not None and source.text:
                 # Use the source text for translation
                 source_text = source.text
-                # Convert HTML entities to real tags for translation
+                # Keep original text in resname
+                resname = trans_unit.get('resname')
+                if resname:
+                    trans_unit.set('resname', source_text)
+                # Convert HTML entities to real tags only for translation
                 from html import unescape
                 translation_text = unescape(source_text)
                 if force:
