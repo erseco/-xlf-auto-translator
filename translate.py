@@ -27,25 +27,19 @@ def analyze_strings(tree):
     """Analyze strings in XLF file and return statistics"""
     total = 0
     untranslated = 0
-    empty = 0
     translated = 0
     
     for trans_unit in tree.findall(".//trans-unit"):
         total += 1
         target = trans_unit.find('target')
-        if target is None:
+        if target is None or not target.text or target.text.isspace():
             untranslated += 1
-            empty += 1
-        elif not target.text or target.text.isspace():
-            untranslated += 1
-            empty += 1
         else:
             translated += 1
             
     return {
         'total': total,
         'untranslated': untranslated,
-        'empty': empty,
         'translated': translated
     }
 
@@ -87,7 +81,7 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
         print(f"\nFile analysis:")
         print(f"Total strings: {stats['total']}")
         print(f"Translated: {stats['translated']}")
-        print(f"Untranslated/Empty: {stats['untranslated']}")
+        print(f"Untranslated: {stats['untranslated']}")
         
         if stats['untranslated'] == 0 and not force:
             print("\nNo untranslated strings found. Use --force to translate all strings.")
