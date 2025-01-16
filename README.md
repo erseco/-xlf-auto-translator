@@ -38,24 +38,58 @@
 
 ## Usage
 
-To translate a file, run the following command:
+The script provides several options for translating XLF files:
 
 ```bash
-python translate.py <input-file.xlf> <output-file.xlf>
+python translate.py <input-file.xlf> [options]
 ```
 
-### Example
+### Options
 
+- `--language`, `-l`: Target language (e.g., es, fr, de). If not provided, will try to detect from filename
+- `--inline`, `-i`: Edit file in-place instead of creating a new file
+- `--force`, `-f`: Force translation of all strings, even if already translated
+
+### Examples
+
+Basic usage (creates a new translated file):
 ```bash
-python translate.py messages.es.xlf messages_translated.es.xlf
+python translate.py messages.es.xlf
+```
+
+Specify target language explicitly:
+```bash
+python translate.py messages.xlf --language es
+```
+
+Edit file in-place:
+```bash
+python translate.py messages.es.xlf --inline
+```
+
+Force retranslation of all strings:
+```bash
+python translate.py messages.es.xlf --force
 ```
 
 ## Configuration
 
-You can configure the translation engine and other settings in the `.env` file:
+Configure the OpenAI API settings in your `.env` file:
 
-- `API_KEY`: API key for the translation engine.
-- `TRANSLATION_ENGINE`: Specify the translation engine to use (e.g., `openai`, `custom`).
+```
+OPENAI_API_KEY=your_openai_api_key
+OPENAI_API_URL=https://api.openai.com/v1
+```
+
+### Features
+
+- Automatic language detection from filename
+- Preserves XML structure and formatting
+- Maintains CDATA sections and HTML entities
+- Batch processing to optimize API usage
+- Progress bar for translation status
+- Statistics about translated/untranslated strings
+- Interactive confirmation before translation
 
 ## Roadmap
 
