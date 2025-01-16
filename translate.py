@@ -135,7 +135,10 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
                         target = ET.SubElement(unit, '{urn:oasis:names:tc:xliff:document:1.2}target')
                     # Only update if target is empty or force flag is set
                     if not target.text or target.text.isspace() or force:
-                        target.text = translation
+                        if '<' in translation or '>' in translation:
+                            target.text = f'<![CDATA[{translation}]]>'
+                        else:
+                            target.text = translation
             
             # Small delay to avoid rate limits
             time.sleep(0.5)
@@ -149,16 +152,42 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
         # Register namespace prefix
         ET.register_namespace('', 'urn:oasis:names:tc:xliff:document:1.2')
         
-        # Write the file preserving CDATA sections
+        # Write the file preserving CDATA sections and HTML entities
         def write_with_cdata(elem, file, encoding='utf-8'):
-            xml_str = ET.tostring(elem, encoding=encoding)
-            # Convert escaped HTML back to CDATA if it contains HTML tags
-            xml_str = xml_str.replace(b'&lt;![CDATA[', b'<![CDATA[')
-            xml_str = xml_str.replace(b']]&gt;', b']]>')
+            def format_element(el, level=0):
+                indent = '  ' * level
+                result = []
+                tag = el.tag.split('}')[-1]  # Remove namespace
+                
+                # Start tag with attributes
+                attrs = ''.join(f' {k}="{v}"' for k, v in sorted(el.attrib.items()))
+                result.append(f'{indent}<{tag}{attrs}>')
+                
+                # Handle text content
+                if el.text:
+                    if '<![CDATA[' in el.text:
+                        result.append(f'{indent}  {el.text}')
+                    elif '<' in el.text or '>' in el.text:
+                        result.append(f'{indent}  <![CDATA[{el.text}]]>')
+                    else:
+                        result.append(f'{indent}  {el.text}')
+                
+                # Process children
+                for child in el:
+                    result.extend(format_element(child, level + 1))
+                    if child.tail:
+                        result.append(f'{indent}  {child.tail}')
+                
+                # End tag
+                result.append(f'{indent}</{tag}>')
+                return result
             
             # Write XML declaration
             file.write(f'<?xml version="1.0" encoding="utf-8"?>\n'.encode(encoding))
-            file.write(xml_str)
+            
+            # Write formatted content
+            content = '\n'.join(format_element(elem))
+            file.write(content.encode(encoding))
 
         with open(output_file, 'wb') as f:
             write_with_cdata(root, f)
