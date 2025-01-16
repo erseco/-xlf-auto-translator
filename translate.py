@@ -140,11 +140,13 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
         
         # Save the result
         if inline:
-            tree.write(input_file, encoding='utf-8', xml_declaration=True)
+            output_file = input_file
         else:
             output_file = f"{os.path.splitext(input_file)[0]}_translated.xlf"
-            tree.write(output_file, encoding='utf-8', xml_declaration=True)
-            print(f"Translations saved to: {output_file}")
+        
+        # Write the file without namespace prefixes
+        tree.write(output_file, encoding='utf-8', xml_declaration=True, default_namespace='urn:oasis:names:tc:xliff:document:1.2')
+        print(f"Translations saved to: {output_file}")
             
     except Exception as e:
         print(f"Error processing file: {e}")
