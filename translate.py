@@ -45,13 +45,12 @@ def analyze_strings(tree):
         'translated': translated
     }
 
-def translate_batch(texts, source_texts, target_lang):
+def translate_batch(texts, target_lang):
     """Translate a batch of texts using OpenAI's API"""
     try:
-        context = "\n".join([f"Key: {key}\nText: {text}" for key, text in zip(texts, source_texts)])
         messages = [
-            {"role": "system", "content": f"You are a professional translator. Translate the following texts to {target_lang}. These are UI strings from a web application. Maintain any HTML or formatting tags unchanged. Return only the translations, one per line, maintaining the same order."},
-            {"role": "user", "content": context}
+            {"role": "system", "content": f"You are a professional translator. Translate the following texts from English to {target_lang}. These are UI strings from a web application. Maintain any HTML or formatting tags unchanged. Return only the translations, one per line, maintaining the same order."},
+            {"role": "user", "content": "\n".join(texts)}
         ]
         
         response = openai.chat.completions.create(
@@ -102,22 +101,18 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
         
         # Collect strings to translate
         trans_units = []
-        keys_to_translate = []
         source_texts = []
         
         for trans_unit in root.findall(".//trans-unit"):
             source = trans_unit.find('source')
             if source is not None and source.text:
-                key = source.text
                 if force:
                     trans_units.append(trans_unit)
-                    keys_to_translate.append(key)
                     source_texts.append(source.text)
                 else:
                     target = trans_unit.find('target')
                     if target is None or not target.text or target.text.isspace():
                         trans_units.append(trans_unit)
-                        keys_to_translate.append(key)
                         source_texts.append(source.text)
         
         # Translate in batches
@@ -125,7 +120,7 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
             batch_texts = source_texts[i:i + BATCH_SIZE]
             batch_units = trans_units[i:i + BATCH_SIZE]
             
-            translations = translate_batch(batch_texts, source_texts[i:i + BATCH_SIZE], target_lang)
+            translations = translate_batch(batch_texts, target_lang)
             if translations:
                 for unit, translation in zip(batch_units, translations):
                     target = unit.find('target')
