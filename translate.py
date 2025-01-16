@@ -23,14 +23,31 @@ def extract_language_from_filename(filename):
         return parts[-1]
     return None
 
-def count_untranslated_strings(tree):
-    """Count number of untranslated strings in XLF file"""
-    count = 0
+def analyze_strings(tree):
+    """Analyze strings in XLF file and return statistics"""
+    total = 0
+    untranslated = 0
+    empty = 0
+    translated = 0
+    
     for trans_unit in tree.findall(".//trans-unit"):
+        total += 1
         target = trans_unit.find('target')
-        if target is None or not target.text or target.text.isspace():
-            count += 1
-    return count
+        if target is None:
+            untranslated += 1
+            empty += 1
+        elif not target.text or target.text.isspace():
+            untranslated += 1
+            empty += 1
+        else:
+            translated += 1
+            
+    return {
+        'total': total,
+        'untranslated': untranslated,
+        'empty': empty,
+        'translated': translated
+    }
 
 def translate_batch(texts, target_lang):
     """Translate a batch of texts using OpenAI's API"""
@@ -52,7 +69,7 @@ def translate_batch(texts, target_lang):
         print(f"Translation error: {e}")
         return None
 
-def process_xlf_file(input_file, target_lang=None, inline=False):
+def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
     """Process XLF file and translate untranslated strings"""
     try:
         # Parse XLF file
@@ -65,13 +82,19 @@ def process_xlf_file(input_file, target_lang=None, inline=False):
             if not target_lang:
                 raise ValueError("Could not determine target language. Please specify with --language parameter.")
         
-        # Count untranslated strings
-        untranslated_count = count_untranslated_strings(tree)
-        if untranslated_count == 0:
-            print("No untranslated strings found.")
+        # Analyze strings
+        stats = analyze_strings(tree)
+        print(f"\nFile analysis:")
+        print(f"Total strings: {stats['total']}")
+        print(f"Translated: {stats['translated']}")
+        print(f"Untranslated/Empty: {stats['untranslated']}")
+        
+        if stats['untranslated'] == 0 and not force:
+            print("\nNo untranslated strings found. Use --force to translate all strings.")
             return
         
-        print(f"Found {untranslated_count} untranslated strings")
+        strings_to_translate = stats['total'] if force else stats['untranslated']
+        print(f"\nWill translate {strings_to_translate} strings")
         print(f"Target language: {target_lang}")
         
         # Ask for confirmation
@@ -85,12 +108,16 @@ def process_xlf_file(input_file, target_lang=None, inline=False):
         source_texts = []
         
         for trans_unit in root.findall(".//trans-unit"):
-            target = trans_unit.find('target')
-            if target is None or not target.text or target.text.isspace():
-                source = trans_unit.find('source')
-                if source is not None and source.text:
+            source = trans_unit.find('source')
+            if source is not None and source.text:
+                if force:
                     trans_units.append(trans_unit)
                     source_texts.append(source.text)
+                else:
+                    target = trans_unit.find('target')
+                    if target is None or not target.text or target.text.isspace():
+                        trans_units.append(trans_unit)
+                        source_texts.append(source.text)
         
         # Translate in batches
         for i in tqdm(range(0, len(source_texts), BATCH_SIZE)):
@@ -125,6 +152,7 @@ def main():
     parser.add_argument("input_file", help="Path to the XLF file to translate")
     parser.add_argument("--language", "-l", help="Target language (e.g., es, fr, de). If not provided, will try to detect from filename")
     parser.add_argument("--inline", "-i", action="store_true", help="Edit file in-place instead of creating a new file")
+    parser.add_argument("--force", "-f", action="store_true", help="Force translation of all strings, even if already translated")
     args = parser.parse_args()
 
     if not os.path.exists(args.input_file):
@@ -135,7 +163,7 @@ def main():
         print("Error: Input file must be an XLF file")
         sys.exit(1)
 
-    process_xlf_file(args.input_file, args.language, args.inline)
+    process_xlf_file(args.input_file, args.language, args.inline, args.force)
 
 if __name__ == "__main__":
     try:
