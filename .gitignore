@@ -125,3 +125,6 @@ dmypy.json
 # Local environment directories
 env/
 .aider*
+
+
+*_translated.xlf
