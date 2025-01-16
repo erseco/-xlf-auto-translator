@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<xliff xmlns="urn:oasis:names:tc:xliff:document:1.2" version="1.2">
+  <file source-language="en" target-language="es" datatype="plaintext" original="file.ext">
+    <header>
+      <tool tool-id="symfony" tool-name="Symfony"/>
+    </header>
+    <body>
+      <trans-unit id="pQWw280" resname="app.name">
+        <source>app.name</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="kRbtL7a" resname="security.login.logged.in.as">
+        <source>security.login.logged.in.as</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="ljPoG31" resname="security.login.logout">
+        <source>security.login.logout</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="YvJVY7H" resname="security.login.welcome">
+        <source>security.login.welcome</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="mfVIqx_" resname="security.login.app">
+        <source>security.login.app</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="aUy6.2f" resname="security.login.start">
+        <source>security.login.start</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="I1ccaiS" resname="security.login.email">
+        <source>security.login.email</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="TT3C_o8" resname="security.login.password">
+        <source>security.login.password</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="8PsyqHR" resname="security.login.submit">
+        <source>security.login.submit</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="b.O.eEh" resname="workarea.lopdgdd.title">
+        <source>workarea.lopdgdd.title</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="x3qsgQp" resname="workarea.lopdgdd.body">
+        <source>workarea.lopdgdd.body</source>
+        <target><![CDATA[<h6>This is a big text</h6><p>Followed by a paragraf</p>]]></target>
+      </trans-unit>
+      <trans-unit id=".jhcwBR" resname="File">
+        <source>File</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="fcdWVrX" resname="New">
+        <source>New</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="_SqArFZ" resname="Open">
+        <source>Open</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="HOr.eWy" resname="Recent projects">
+        <source>Recent projects</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="z9OKodR" resname="Save">
+        <source>Save</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="swQ_hb0" resname="Save as">
+        <source>Save as</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="1HICw8x" resname="Export as">
+        <source>Export as</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="iMlLPDz" resname="Download">
+        <source>Download</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="IsCRhOa" resname="Utilities">
+        <source>Utilities</source>
+        <target></target>
+      </trans-unit>
+      <trans-unit id="YN8esfy" resname="Preferences">
+        <source>Preferences</source>
+        <target></target>
+      </trans-unit>
+    </body>
+  </file>
+</xliff>
