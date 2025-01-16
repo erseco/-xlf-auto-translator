@@ -110,16 +110,18 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
         source_texts = []
         
         for trans_unit in root.findall(".//xliff:trans-unit", namespaces=ns):
-            resname = trans_unit.get('resname')
-            if resname:
+            source = trans_unit.find('xliff:source', namespaces=ns)
+            if source is not None and source.text:
+                # Use the source text for translation
+                source_text = source.text
                 if force:
                     trans_units.append(trans_unit)
-                    source_texts.append(resname)
+                    source_texts.append(source_text)
                 else:
                     target = trans_unit.find('xliff:target', namespaces=ns)
                     if target is None or not target.text or target.text.isspace():
                         trans_units.append(trans_unit)
-                        source_texts.append(resname)
+                        source_texts.append(source_text)
         
         # Translate in batches
         for i in tqdm(range(0, len(source_texts), BATCH_SIZE)):
@@ -170,11 +172,16 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
                 
                 # Handle text content
                 if el.text:
-                    if '<![CDATA[' in el.text:
-                        result.append(el.text)
-                    elif '<' in el.text or '>' in el.text:
-                        result.append(f'<![CDATA[{el.text}]]>')
+                    if el.tag.endswith('target'):
+                        # For target elements, convert entities to HTML and wrap in CDATA if needed
+                        from html import unescape
+                        text = unescape(el.text)  # Convert entities to HTML
+                        if '<' in text or '>' in text:
+                            result.append(f'<![CDATA[{text}]]>')
+                        else:
+                            result.append(text)
                     else:
+                        # For non-target elements, keep original text with entities
                         result.append(el.text)
                 
                 # Process children
