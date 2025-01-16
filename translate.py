@@ -144,8 +144,11 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
         else:
             output_file = f"{os.path.splitext(input_file)[0]}_translated.xlf"
         
-        # Write the file without namespace prefixes
-        tree.write(output_file, encoding='utf-8', xml_declaration=True, default_namespace='urn:oasis:names:tc:xliff:document:1.2')
+        # Register namespace prefix
+        ET.register_namespace('', 'urn:oasis:names:tc:xliff:document:1.2')
+        
+        # Write the file
+        tree.write(output_file, encoding='utf-8', xml_declaration=True)
         print(f"Translations saved to: {output_file}")
             
     except Exception as e:
