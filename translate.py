@@ -133,7 +133,9 @@ def process_xlf_file(input_file, target_lang=None, inline=False, force=False):
                     target = unit.find('xliff:target', namespaces=ns)
                     if target is None:
                         target = ET.SubElement(unit, '{urn:oasis:names:tc:xliff:document:1.2}target')
-                    target.text = translation
+                    # Only update if target is empty or force flag is set
+                    if not target.text or target.text.isspace() or force:
+                        target.text = translation
             
             # Small delay to avoid rate limits
             time.sleep(0.5)
